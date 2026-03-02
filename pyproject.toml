@@ -9,7 +9,7 @@ authors = [
     {name = "Lexus Wang", email = "lingzhiwang2025@u.northwestern.edu"},
 ]
 description = "This library provides standard Python APIs to interact with common penetration testing and cyberattack tools, enabling automated penetration testing, red team operations, and development of cybersecurity-related LLM agents."
-readme = "README.md"
+readme = "attack_executor/README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 dependencies = [
@@ -20,3 +20,7 @@ dependencies = [
 
 [project.scripts]
 attack_executor = "attack_executor.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["attack_executor*"]
+exclude = ["attack_chains*", "attack_tools*", "test*"]
