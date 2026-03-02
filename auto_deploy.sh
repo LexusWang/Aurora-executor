@@ -12,7 +12,7 @@ sudo apt-get install -y virtualenv expect tmux
 virtualenv $VENV_NAME
 
 # Install Python dependencies
-$VENV_NAME/bin/pip install -e . \
+$VENV_NAME/bin/pip install attack-executor==0.2.7 \
     questionary==2.1.0
 
 # Download Sliver server
