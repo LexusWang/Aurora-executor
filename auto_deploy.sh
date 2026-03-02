@@ -74,6 +74,8 @@ echo -e "[*] Service management commands:"
 echo -e "  View Metasploit session: tmux attach -t msf"
 echo -e "  View Sliver session: tmux attach -t sliver"
 
-# Activate virtual environment automatically
-echo -e "\n[+] Activating virtual environment..."
-source $VENV_NAME/bin/activate
+# Instructions for activating virtual environment
+echo -e "\n[!] To activate the virtual environment, run:"
+echo -e "    source $VENV_NAME/bin/activate"
+echo -e "\n[*] After activation, you can run attack scripts:"
+echo -e "    python attack.py"
