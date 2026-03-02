@@ -12,11 +12,21 @@ sudo apt-get install -y virtualenv expect tmux
 virtualenv $VENV_NAME
 
 # Install Python dependencies
-$VENV_NAME/bin/pip install attack-executor==0.2.2 \
-    questionary==2.1.0 \
-    rich==14.0.0 \
-    pymetasploit3==1.0.6 \
-    sliver-py==0.0.19
+$VENV_NAME/bin/pip install -e . \
+    questionary==2.1.0
+
+# Download Sliver server
+echo -e "\n[+] Downloading Sliver server..."
+mkdir -p attack_tools
+cd attack_tools
+if [ ! -f "sliver-server_linux-amd64" ]; then
+    wget https://github.com/BishopFox/sliver/releases/download/v1.7.2/sliver-server_linux-amd64
+    chmod +x sliver-server_linux-amd64
+    echo -e "[+] Sliver server downloaded successfully"
+else
+    echo -e "[*] Sliver server already exists, skipping download"
+fi
+cd ..
 
 # Set default values without user interaction
 # read -p "Path to Sliver client config [default: ~/zer0cool.cfg]: " sliver_path
