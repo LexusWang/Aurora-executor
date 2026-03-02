@@ -1,0 +1,7 @@
+attack_tools/*
+*.cfg
+*.cfg.backup
+*.cfg.new
+.DS_Store
+payload.elf
+env_aurora-executor/

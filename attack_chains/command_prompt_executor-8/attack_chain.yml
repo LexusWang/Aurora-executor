@@ -1,0 +1,68 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-10 16:22:32 UTC+0000
+attack_action_sequence:
+  - uuid: 291452ab-1bfa-4128-948e-0ded410d268f
+    name: DistCC Daemon Command Execution
+    id:
+      - T1203
+      - T1210
+    source: Metasploit Exploit
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+      - Initial Access
+    technique:
+      - Exploitation for Client Execution
+      - Exploitation of Remote Services
+    description: This module uses a documented security weakness to execute arbitrary
+      commands on any system running distccd.
+    testbed:
+      CVE:
+        - CVE-2004-2687
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("unix/misc/distcc_exec")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 3632
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      ConnectTimeout:
+        CurrentSetting: 10
+        Required: true
+        Description: Maximum number of seconds to establish a TCP connection
+  - uuid: c1745fd8-3317-4885-a109-1c310971b472
+    name: Unix Command, Generic Command Execution
+    id:
+      - T1059
+    source: Metasploit Payload
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+    technique:
+      - Command and Scripting Interpreter
+    description: Executes the supplied command
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("cmd/unix/generic")
+    arguments:
+      CMD:
+        CurrentSetting: ''
+        Required: true
+        Description: The command string to execute
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2004-2687

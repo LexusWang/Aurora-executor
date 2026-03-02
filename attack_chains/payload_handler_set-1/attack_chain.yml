@@ -1,0 +1,46 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-03 07:26:53 UTC+0000
+attack_action_sequence:
+  - uuid: 08f66886-0e96-455b-be31-b0af37db8e23
+    name: Set a universal payload handler using MSF exploit/multi/handler module
+    id:
+      - T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - Windows Command Shell
+      - Ingress Tool Transfer
+      - Non-Standard Por
+    description: |
+      In Metasploit, the exploit/multi/handler module is essentially a universal payload handler.
+      Unlike most exploit modules in Metasploit that target specific vulnerabilities, multi/handler does not exploit a particular service or software.
+      Instead, its main purpose is to listen for incoming connections from payloads that you have already delivered to a target by some other means.
+    execution:
+      executor: Metasploit Executor
+      command: |
+        exploit_and_execute_payload(target = None,
+                                    exploit_module_name = "exploit/multi/handler",
+                                    payload_module_name = "#{payload_name}",
+                                    listening_host = "#{LHOST}",
+                                    listening_port = "#{LPORT}"):
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      payload_name:
+        default:
+        description: payload type set by msf
+        type:
+testbed_requirement:
+  OS: []
+  CVE: []

