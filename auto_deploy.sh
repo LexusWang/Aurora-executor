@@ -49,10 +49,43 @@ EOF
 tmux kill-session -t msf 2>/dev/null
 tmux kill-session -t sliver 2>/dev/null
 
-# Start Metasploit RPC service
-echo -e "\n[+] Starting Metasploit RPC service..."
-tmux new-session -d -s msf \
-  "msfconsole -q -x 'load msgrpc Pass=$msf_pass; setg MSGRPC_Pass $msf_pass; sleep 60000'"
+# Check if msfconsole is available, install if not
+if ! command -v msfconsole &> /dev/null; then
+    echo -e "\n[!] Metasploit Framework not found. Installing..."
+    sudo apt-get install -y metasploit-framework
+
+    # Initialize Metasploit database
+    echo -e "[+] Initializing Metasploit database..."
+    sudo msfdb init
+
+    # Verify installation
+    if ! command -v msfconsole &> /dev/null; then
+        echo -e "[!] ERROR: Failed to install Metasploit Framework"
+        echo -e "[*] Skipping Metasploit RPC service..."
+        MSF_AVAILABLE=false
+    else
+        echo -e "[+] Metasploit Framework installed successfully"
+        MSF_AVAILABLE=true
+    fi
+else
+    echo -e "\n[+] Metasploit Framework already installed"
+    MSF_AVAILABLE=true
+fi
+
+# Start Metasploit RPC service if available
+if [ "$MSF_AVAILABLE" = true ]; then
+    echo -e "[+] Starting Metasploit RPC service..."
+    tmux new-session -d -s msf \
+      "msfconsole -q -x 'load msgrpc Pass=$msf_pass; setg MSGRPC_Pass $msf_pass; sleep 60000'"
+
+    # Verify msf session was created
+    sleep 2
+    if ! tmux has-session -t msf 2>/dev/null; then
+        echo -e "[!] WARNING: Failed to start Metasploit RPC session"
+    else
+        echo -e "[+] Metasploit RPC service started successfully"
+    fi
+fi
 
 # Start Sliver C2 server
 echo -e "[+] Starting Sliver C2 server..."
